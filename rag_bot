@@ -6,6 +6,7 @@ from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain.document_loaders import TextLoader
 from langchain.chains.question_answering import load_qa_chain
 import datetime
+import random
 
 os.environ['OPENAI_API_KEY'] = 'your-openai-api-key'  # Replace with your OpenAI API key
 
@@ -29,37 +30,55 @@ def chatbot_conversation(query):
     response = conversational_retriever.ask(query)
     return response
 
-
 def dynamic_greeting():
     """Generate a personalized greeting based on the time of day."""
     current_hour = datetime.datetime.now().hour
     if current_hour < 12:
-        return "Good morning! I'm here to assist you."
+        return "Good morning! Welcome to your personal assistant."
     elif 12 <= current_hour < 18:
-        return "Good afternoon! How can I help you today?"
+        return "Good afternoon! How can I assist you today?"
     else:
-        return "Good evening! How can I help you tonight?"
+        return "Good evening! I'm here to help with your queries."
+
+def suggest_example_queries():
+    """Provide a few example queries to guide the user."""
+    examples = [
+        "What is ETL?",
+        "How does the RAG model work?",
+        "Explain the FAISS index in simple terms.",
+        "Tell me about LangChain integrations."
+    ]
+    return f"Here are some examples you can ask:\n- " + "\n- ".join(random.sample(examples, 2))
+
+def handle_user_input(query):
+    """Handle the user's input and provide appropriate responses."""
+    if not query.strip():
+        return "It seems like you entered nothing. Please ask a question or type 'exit' to quit."
+    if query.lower() in ["exit", "quit", "bye"]:
+        return "Thank you for using the chatbot. Have a great day!"
+    try:
+        # Use the chatbot_conversation function to get a response
+        response = chatbot_conversation(query)
+        return response
+    except Exception as e:
+        return f"Oops, something went wrong: {str(e)}. Please try again."
 
 def start_chatbot():
-    """Start a more dynamic chatbot conversation."""
+    """Start an improved, dynamic chatbot conversation."""
     print(dynamic_greeting())
-    print("Type 'exit' anytime to end the conversation.")
-    print("Feel free to ask me anything!")
-    
+    print("Type 'exit' or 'quit' anytime to end the conversation.")
+    print(suggest_example_queries())
+    print("-" * 50)
+
     while True:
-        query = input("User: ").strip()
-        
-        if not query:
-            print("Bot: Ayo you need to ask a question or type 'exit' to quit.")
-            continue
-        
-        if query.lower() == "exit":
-            print("Bot: Goodbye! It was a pleasure assisting you mate. Ahoi!")
+        query = input("\nYou: ").strip()
+        response = handle_user_input(query)
+
+        if response.lower().startswith("thank you"):
+            print(f"Bot: {response}")
             break
         
-        response = chatbot_conversation(query)
         print(f"Bot: {response}")
-
 
 if __name__ == "__main__":
     start_chatbot()

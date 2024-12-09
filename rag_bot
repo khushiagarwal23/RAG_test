@@ -113,7 +113,24 @@ for year in years:
     storage_context = StorageContext.from_defaults(
         persist_dir=f"./storage/{year}"
     )
+faiss_db = FAISS.from_documents(documents, embeddings)
+# Initialize the LLM (OpenAI GPT)
+llm = OpenAI(temperature=0.7)
+
     cur_index = load_index_from_storage(
         storage_context,
     )
     index_set[year] = cur_index
+# bot.py
+
+from chatterbot import ChatBot
+
+chatbot = ChatBot("Chatpot")
+
+exit_conditions = (":q", "quit", "exit")
+while True:
+    query = input("> ")
+    if query in exit_conditions:
+        break
+    else:
+        print(f"🪴 {chatbot.get_response(query)}")
